@@ -17,6 +17,10 @@ namespace KuyakusyoChecker
     {
         const String citycode = "230010";
         String url = "http://weather.livedoor.com/forecast/webservice/json/v1?city=" + citycode;
+
+        int count = 0;
+        string[] RokuyoLabel = { "大安", "赤口", "先勝", "友引", "先負", "仏滅" };
+        string todayweather = "";
         public Form1()
         {
             InitializeComponent();
@@ -29,12 +33,9 @@ namespace KuyakusyoChecker
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            int count = 0;
-            string[] RokuyoLabel = { "大安", "赤口", "先勝", "友引", "先負", "仏滅" };
             var TheDay = dateTimePicker1.Value;
             string DayOfW = TheDay.ToString("dddd");
             int month = TheDay.Month;
-            //日を取得する。「30」となる。
             int day = TheDay.Day;
             if ((DayOfW == "土曜日") || (DayOfW == "日曜日"))
             {
@@ -43,6 +44,7 @@ namespace KuyakusyoChecker
             }
             var Today = DateTime.Today;
 
+            // お天気予報情報の取得
             string json = new HttpClient().GetStringAsync(url).Result;
             JObject jobj = JObject.Parse(json);
             double interval = (TheDay - Today).TotalDays;
@@ -58,11 +60,11 @@ namespace KuyakusyoChecker
             int OldM = OldCalender.GetMonth(TheDay);
             int OldD = OldCalender.GetDayOfMonth(TheDay);
             
-            //閏月を調べる(閏月が無いときは0が返る)
+            // 閏月を調べる(閏月が無いときは0が返る)
             DateTime UruF = OldCalender.AddDays(TheDay, 1 - OldCalender.GetDayOfYear(TheDay));
             int UruM = OldCalender.GetLeapMonth(OldCalender.GetYear(UruF), OldCalender.GetEra(UruF));
 
-            //旧暦の月の訂正
+            // 旧暦の月の訂正
             if((UruM > 0)&&(OldM >= UruM))
             {
                 OldM--;
@@ -70,20 +72,24 @@ namespace KuyakusyoChecker
 
             string Rokuyo = RokuyoLabel[(OldM + OldD) % 6];
 
-            //多い条件を調べる
-            if(Rokuyo == "大安") //婚姻届がたくさん来る
+            // 多い条件を調べる
+            if(Rokuyo == "大安") // 婚姻届がたくさん来る
             {
                 count++;
             }
-            if(DayOfW == "月曜日") //祝日の翌日
+            if(DayOfW == "月曜日") // 祝日の翌日
             {
                 count++;
             }
-            if(month == day) //ぞろ目の日
+            if(month == day) // ぞろ目の日
             {
                 count++;
             }
             if((month == 12)&&(day == 24))
+            {
+                count++;
+            }
+            if(todayweather == "晴れ") // 日柄のいい日
             {
                 count++;
             }
