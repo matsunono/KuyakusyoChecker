@@ -18,9 +18,8 @@ namespace KuyakusyoChecker
         const String citycode = "230010";
         String url = "http://weather.livedoor.com/forecast/webservice/json/v1?city=" + citycode;
 
-        int count = 0;
         string[] RokuyoLabel = { "大安", "赤口", "先勝", "友引", "先負", "仏滅" };
-        string todayweather = "";
+        
         public Form1()
         {
             InitializeComponent();
@@ -33,6 +32,8 @@ namespace KuyakusyoChecker
 
         private void StartButton_Click(object sender, EventArgs e)
         {
+            int count = 0;
+            string todayweather = "";
             var TheDay = dateTimePicker1.Value;
             string DayOfW = TheDay.ToString("dddd");
             int month = TheDay.Month;
@@ -50,7 +51,7 @@ namespace KuyakusyoChecker
             double interval = (TheDay - Today).TotalDays;
             if((interval >= 0) && (interval <= 2))
             {
-                string todayweather = (string)((jobj["forecasts"][(int)interval]["telop"] as JValue).Value);//今日明日明後日の天気の取得
+                todayweather = (string)((jobj["forecasts"][(int)interval]["telop"] as JValue).Value);//今日明日明後日の天気の取得
                 MessageBox.Show(todayweather);
             }
             
@@ -89,7 +90,7 @@ namespace KuyakusyoChecker
             {
                 count++;
             }
-            if(todayweather == "晴れ") // 日柄のいい日
+            if(todayweather.Contains("晴れ") == true) // 日柄のいい日
             {
                 count++;
             }
